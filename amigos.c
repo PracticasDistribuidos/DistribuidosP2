@@ -10,8 +10,7 @@
 
 int primeFactorsArray[LIMIT][200];
 int allFactorsArray[LIMIT][200];
-int noDuplicatesArray[LIMIT][200];
-int noDuplicatesArrayLength[LIMIT];
+int allFactorsArrayLength[LIMIT];
 
 int removeDuplicates(int n, int *allFactorsTemp) {
     int i, j;
@@ -115,12 +114,12 @@ int main() {
     }
 
     for(int i = 1; i< LIMIT; i++) {
-        noDuplicatesArrayLength[i] = removeDuplicates(i,allFactorsArray[i]);
+        allFactorsArrayLength[i] = removeDuplicates(i,allFactorsArray[i]);
     }
 
     for(int i = 0; i<LIMIT; i++){
         printf("Los divisores propios de %d son\n", i);
-        for(int j = 0; j<noDuplicatesArrayLength[i];j++) {
+        for(int j = 0; j<allFactorsArrayLength[i];j++) {
             printf("%d ",allFactorsArray[i][j]);
         }
         printf("\n");
@@ -131,6 +130,6 @@ int main() {
 
 	elapsed_time = (float) (stop_ts - start_ts)/1000000.0;
  
-    printf("Encontré numeros amigos hasta %d en %1.2f segundos\n",LIMIT,elapsed_time);
+    printf("Encontré los numeros amigos que existen hasta %d en %1.2f segundos\n",LIMIT,elapsed_time);
     return 0;
 }
