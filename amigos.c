@@ -6,13 +6,70 @@
 #include <unistd.h>
 #include <sys/time.h>
   
-#define LIMIT 50
+#define LIMIT 222
 
-int primeFactorsArray[LIMIT][100];
-int allFactorsArray[LIMIT][100];
+int primeFactorsArray[LIMIT][200];
+int allFactorsArray[LIMIT][200];
+int noDuplicatesArray[LIMIT][200];
+int noDuplicatesArrayLength[LIMIT];
+
+int removeDuplicates(int n, int *allFactorsTemp) {
+    int i, j;
+    int newLength = 1;
+    for (i = 1; allFactorsTemp[i] != 0; i++) {
+        for(j= 0; j< newLength ; j++) {
+            if(allFactorsTemp[i] == allFactorsTemp[j]) {
+                break;
+            }
+        }
+    
+        if(j==newLength) {
+            allFactorsTemp[newLength++] = allFactorsTemp[i];
+        }
+    }
+
+    return newLength;
+}
 
 void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
-    
+    int currentAllFactor = 0;
+    int tempAllFactor = 1;
+    int lastPrime;
+    for(lastPrime = 0; primeFactorsTemp[lastPrime] > 0 && primeFactorsTemp[lastPrime] != n; lastPrime++){
+            allFactorsTemp[currentAllFactor] = primeFactorsTemp[lastPrime];
+            currentAllFactor++;
+    }
+
+    for(int i = 1; primeFactorsTemp[i] > 0 && primeFactorsTemp[i] != n; i++){
+        tempAllFactor = primeFactorsTemp[i];
+        for(int j = i+1; primeFactorsTemp[j] > 0 && tempAllFactor != n; j++) {
+            tempAllFactor = tempAllFactor * primeFactorsTemp[j];
+            if(tempAllFactor!=n) {
+                allFactorsTemp[currentAllFactor] = tempAllFactor;
+                currentAllFactor++;
+            }
+        }
+    }
+
+    /*
+    el valor de lastPrime antes y despues de entrar al ciclo for cambia. 
+    Antes de entrar es correcto pero cuando entra se hace 1/0 y no tengo npi de porque.
+    Una vez solucionado esto ya vamos a tener un arreglo con todos los divisores propios
+    de todos los numeros.
+    */
+    //printf("Last Prime Outside = %d\n", lastPrime);
+    int i = lastPrime;
+    for(i; primeFactorsTemp[i] > 0 ; i--){
+        tempAllFactor = primeFactorsTemp[i];
+        //printf("Last Prime Inside = %d\n",lastPrime);
+        for(int j = i-1; primeFactorsTemp[j] > 0 && tempAllFactor != n; j--) {
+            tempAllFactor = tempAllFactor * primeFactorsTemp[j];
+            if(tempAllFactor!=n) {
+                allFactorsTemp[currentAllFactor] = tempAllFactor;
+                currentAllFactor++;
+            }
+        }
+    }
 }
 
 void primeFactors(int n, int* primeFactorsTemp) {
@@ -38,7 +95,6 @@ void primeFactors(int n, int* primeFactorsTemp) {
     }
 }
   
-/* Driver program to test above function */
 int main() {
     long long start_ts;
 	long long stop_ts;
@@ -54,19 +110,20 @@ int main() {
         primeFactors(i,primeFactorsArray[i]);
     }
 
-    for(int i = 0; i<LIMIT; i++){
-        printf("Los divisores primos de %d son\n", i);
-        for(int j = 0; j<20;j++) {
-           if(primeFactorsArray[i][j]==0) {
-                break;
-            }
-            printf("%d ",primeFactorsArray[i][j]);
-        }
-        printf("\n");
+    for(int i = 1; i < LIMIT; i++) {
+        allFactors(i,primeFactorsArray[i],allFactorsArray[i]);
     }
 
-    for(int i = 1; i < LIMIT-2; i++) {
-        allFactors(i,primeFactorsArray[i],allFactorsArray[i]);
+    for(int i = 1; i< LIMIT; i++) {
+        noDuplicatesArrayLength[i] = removeDuplicates(i,allFactorsArray[i]);
+    }
+
+    for(int i = 0; i<LIMIT; i++){
+        printf("Los divisores propios de %d son\n", i);
+        for(int j = 0; j<noDuplicatesArrayLength[i];j++) {
+            printf("%d ",allFactorsArray[i][j]);
+        }
+        printf("\n");
     }
 
 	gettimeofday(&ts, NULL);
