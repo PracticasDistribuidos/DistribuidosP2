@@ -1,4 +1,3 @@
-
 // Program to print all prime factors 
 #include <stdio.h> 
 #include <math.h> 
@@ -11,6 +10,8 @@
 int primeFactorsArray[LIMIT][200];
 int allFactorsArray[LIMIT][200];
 int allFactorsArrayLength[LIMIT];
+static int lastPrime = 0;
+static int ultimoPrime;
 
 int removeDuplicates(int n, int *allFactorsTemp) {
     int i, j;
@@ -33,15 +34,15 @@ int removeDuplicates(int n, int *allFactorsTemp) {
 void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
     int currentAllFactor = 0;
     int tempAllFactor = 1;
-    int lastPrime;
+    int i, j = 0;
     for(lastPrime = 0; primeFactorsTemp[lastPrime] > 0 && primeFactorsTemp[lastPrime] != n; lastPrime++){
             allFactorsTemp[currentAllFactor] = primeFactorsTemp[lastPrime];
             currentAllFactor++;
     }
 
-    for(int i = 1; primeFactorsTemp[i] > 0 && primeFactorsTemp[i] != n; i++){
+    for(i = 1; primeFactorsTemp[i] > 0 && primeFactorsTemp[i] != n; i++){
         tempAllFactor = primeFactorsTemp[i];
-        for(int j = i+1; primeFactorsTemp[j] > 0 && tempAllFactor != n; j++) {
+        for(j = i+1; primeFactorsTemp[j] > 0 && tempAllFactor != n; j++) {
             tempAllFactor = tempAllFactor * primeFactorsTemp[j];
             if(tempAllFactor!=n) {
                 allFactorsTemp[currentAllFactor] = tempAllFactor;
@@ -57,15 +58,16 @@ void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
     de todos los numeros.
     */
     //printf("Last Prime Outside = %d\n", lastPrime);
-    int i = lastPrime;
-    for(i; primeFactorsTemp[i] > 0 ; i--){
+    //printf("Last Prime Inside = %d\n",ultimoPrime);
+    for(i = 50; i > 0 ; i--){
         tempAllFactor = primeFactorsTemp[i];
-        //printf("Last Prime Inside = %d\n",lastPrime);
-        for(int j = i-1; primeFactorsTemp[j] > 0 && tempAllFactor != n; j--) {
+        
+        for(j = 0; j < i && allFactorsTemp[i] > 0; j++) {
             tempAllFactor = tempAllFactor * primeFactorsTemp[j];
-            if(tempAllFactor!=n) {
+            if(tempAllFactor!=n && tempAllFactor!= 0) {
                 allFactorsTemp[currentAllFactor] = tempAllFactor;
                 currentAllFactor++;
+               //printf("tempAllFactor = %d\n en %d", tempAllFactor, n);
             }
         }
     }
@@ -119,7 +121,7 @@ int main() {
 
     for(int i = 0; i<LIMIT; i++){
         printf("Los divisores propios de %d son\n", i);
-        for(int j = 0; j<allFactorsArrayLength[i];j++) {
+        for(int j = 0; j < allFactorsArrayLength[i];j++) {
             printf("%d ",allFactorsArray[i][j]);
         }
         printf("\n");
