@@ -10,8 +10,6 @@
 int primeFactorsArray[LIMIT][200];
 int allFactorsArray[LIMIT][200];
 int allFactorsArrayLength[LIMIT];
-static int lastPrime = 0;
-static int ultimoPrime;
 
 int removeDuplicates(int n, int *allFactorsTemp) {
     int i, j;
@@ -35,8 +33,8 @@ void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
     int currentAllFactor = 0;
     int tempAllFactor = 1;
     int i, j = 0;
-    for(lastPrime = 0; primeFactorsTemp[lastPrime] > 0 && primeFactorsTemp[lastPrime] != n; lastPrime++){
-            allFactorsTemp[currentAllFactor] = primeFactorsTemp[lastPrime];
+    for(i = 0; primeFactorsTemp[i] > 0 && primeFactorsTemp[i] != n; i++){
+            allFactorsTemp[currentAllFactor] = primeFactorsTemp[i];
             currentAllFactor++;
     }
 
@@ -51,14 +49,6 @@ void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
         }
     }
 
-    /*
-    el valor de lastPrime antes y despues de entrar al ciclo for cambia. 
-    Antes de entrar es correcto pero cuando entra se hace 1/0 y no tengo npi de porque.
-    Una vez solucionado esto ya vamos a tener un arreglo con todos los divisores propios
-    de todos los numeros.
-    */
-    //printf("Last Prime Outside = %d\n", lastPrime);
-    //printf("Last Prime Inside = %d\n",ultimoPrime);
     for(i = 50; i > 0 ; i--){
         tempAllFactor = primeFactorsTemp[i];
         
@@ -67,7 +57,6 @@ void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
             if(tempAllFactor!=n && tempAllFactor!= 0) {
                 allFactorsTemp[currentAllFactor] = tempAllFactor;
                 currentAllFactor++;
-               //printf("tempAllFactor = %d\n en %d", tempAllFactor, n);
             }
         }
     }
