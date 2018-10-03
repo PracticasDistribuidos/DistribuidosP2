@@ -5,82 +5,99 @@
 #include <unistd.h>
 #include <sys/time.h>
   
-#define LIMIT 222
+#define LIMIT 20000
 
 int primeFactorsArray[LIMIT][200];
 int allFactorsArray[LIMIT][200];
 int allFactorsArrayLength[LIMIT];
+int sumOfFactorsArray[LIMIT];
 
-int removeDuplicates(int n, int *allFactorsTemp) {
+int removeDuplicates(int n, int *allFactorsBranch) {
     int i, j;
     int newLength = 1;
-    for (i = 1; allFactorsTemp[i] != 0; i++) {
+    for (i = 1; allFactorsBranch[i] != 0; i++) {
         for(j= 0; j< newLength ; j++) {
-            if(allFactorsTemp[i] == allFactorsTemp[j]) {
+            if(allFactorsBranch[i] == allFactorsBranch[j]) {
                 break;
             }
         }
-    
         if(j==newLength) {
-            allFactorsTemp[newLength++] = allFactorsTemp[i];
+            allFactorsBranch[newLength++] = allFactorsBranch[i];
         }
     }
 
     return newLength;
 }
 
-void allFactors(int n, int* primeFactorsTemp, int* allFactorsTemp) {
+int getSumOfArray(int* allFactorsBranch, int size) {
+    int i;
+    int total = 0;
+    for(i = 0; i < size; i++) {
+        total += allFactorsBranch[i]; 
+    }
+
+    return total;
+}
+
+void allFactors(int n, int* primeFactorsBranch, int* allFactorsBranch) {
     int currentAllFactor = 0;
     int tempAllFactor = 1;
-    int i, j = 0;
-    for(i = 0; primeFactorsTemp[i] > 0 && primeFactorsTemp[i] != n; i++){
-            allFactorsTemp[currentAllFactor] = primeFactorsTemp[i];
+    int i, j, k = 0;
+
+    
+    for(i = 0; primeFactorsBranch[i] > 0 && primeFactorsBranch[i] != n; i++) {
+            allFactorsBranch[currentAllFactor] = primeFactorsBranch[i];
             currentAllFactor++;
     }
 
-    for(i = 1; primeFactorsTemp[i] > 0 && primeFactorsTemp[i] != n; i++){
-        tempAllFactor = primeFactorsTemp[i];
-        for(j = i+1; primeFactorsTemp[j] > 0 && tempAllFactor != n; j++) {
-            tempAllFactor = tempAllFactor * primeFactorsTemp[j];
-            if(tempAllFactor!=n) {
-                allFactorsTemp[currentAllFactor] = tempAllFactor;
-                currentAllFactor++;
-            }
-        }
-    }
+    int totalPrimes = currentAllFactor;
 
-    for(i = 50; i > 0 ; i--){
-        tempAllFactor = primeFactorsTemp[i];
-        
-        for(j = 0; j < i && allFactorsTemp[i] > 0; j++) {
-            tempAllFactor = tempAllFactor * primeFactorsTemp[j];
-            if(tempAllFactor!=n && tempAllFactor!= 0) {
-                allFactorsTemp[currentAllFactor] = tempAllFactor;
-                currentAllFactor++;
+    for(i = 1; primeFactorsBranch[i] > 0 && primeFactorsBranch[i] != n; i++) {
+        for(k = 1; k < 100; k++) {
+            tempAllFactor = primeFactorsBranch[i];
+            for(j = k; primeFactorsBranch[j] > 0 && tempAllFactor != n; j++) {
+                if(i!=j) {
+                    tempAllFactor = tempAllFactor * primeFactorsBranch[j];
+                    if(tempAllFactor!=n) {
+                        allFactorsBranch[currentAllFactor] = tempAllFactor;
+                        currentAllFactor++;
+                    }
+                }
             }
         }
     }
 }
 
-void primeFactors(int n, int* primeFactorsTemp) {
+void printIfFriends(int* sumoOfFactors) {
+    int i, j;
+    for(i = 0; i < LIMIT; i++) {
+        for(j = i+1; j < LIMIT; j++) {
+            if(sumoOfFactors[i]==j && sumoOfFactors[j]==i && i!=j) {
+                printf("%d y %d son numeros amigos\n",i,j);
+            }
+        }
+    }
+}
+
+void primeFactors(int n, int* primeFactorsBranch) {
     int currentPrimeFactor = 1;
-    primeFactorsTemp[0] = 1;
+    primeFactorsBranch[0] = 1;
     while (n%2 == 0) {
-        primeFactorsTemp[currentPrimeFactor] = 2;
+        primeFactorsBranch[currentPrimeFactor] = 2;
         currentPrimeFactor+= 1;
         n = n/2;
     }
 
     for (int i = 3; i <= sqrt(n); i = i+2) {
         while (n%i == 0) {
-            primeFactorsTemp[currentPrimeFactor] = i;
+            primeFactorsBranch[currentPrimeFactor] = i;
             currentPrimeFactor+= 1;
             n = n/i;
         }
     }
 
     if (n > 2) {
-        primeFactorsTemp[currentPrimeFactor] = n;
+        primeFactorsBranch[currentPrimeFactor] = n;
         currentPrimeFactor+= 1;
     }
 }
@@ -108,12 +125,18 @@ int main() {
         allFactorsArrayLength[i] = removeDuplicates(i,allFactorsArray[i]);
     }
 
-    for(int i = 0; i<LIMIT; i++){
-        printf("Los divisores propios de %d son\n", i);
-        for(int j = 0; j < allFactorsArrayLength[i];j++) {
-            printf("%d ",allFactorsArray[i][j]);
-        }
-        printf("\n");
+    for(int i = 1; i< LIMIT; i++) {
+        sumOfFactorsArray[i] = getSumOfArray(allFactorsArray[i],allFactorsArrayLength[i]);
+    }
+
+    printIfFriends(sumOfFactorsArray);
+
+    printf("sumOfFactorsArray[14595] es igual a %d\n", sumOfFactorsArray[14595]);
+    printf("sumOfFactorsArray[12285] es igual a %d\n", sumOfFactorsArray[12285]);
+
+    printf("Factores de 12285: ");
+    for(int i = 0; i< allFactorsArrayLength[12285]; i++) {
+        printf("%d\n", allFactorsArray[12285][i]);
     }
 
 	gettimeofday(&ts, NULL);
