@@ -12,6 +12,9 @@ int allFactorsArray[LIMIT][200];
 int allFactorsArrayLength[LIMIT];
 int sumOfFactorsArray[LIMIT];
 
+/**
+* Elimina los primos repetidos
+*/
 int removeDuplicates(int n, int *allFactorsBranch) {
     int i, j;
     int newLength = 1;
@@ -42,7 +45,7 @@ int getSumOfArray(int* allFactorsBranch, int size) {
 void allFactors(int n, int* primeFactorsBranch, int* allFactorsBranch) {
     int currentAllFactor = 0;
     int tempAllFactor = 1;
-    int i, j, k = 0;
+    int i, j, k, z = 0;
 
     
     for(i = 0; primeFactorsBranch[i] > 0 && primeFactorsBranch[i] != n; i++) {
@@ -52,10 +55,10 @@ void allFactors(int n, int* primeFactorsBranch, int* allFactorsBranch) {
 
     int totalPrimes = currentAllFactor;
 
-    for(i = 1; primeFactorsBranch[i] > 0 && primeFactorsBranch[i] != n; i++) {
+    for(i = 1; primeFactorsBranch[i] > 0; i++) {
         for(k = 1; k < 100; k++) {
             tempAllFactor = primeFactorsBranch[i];
-            for(j = k; primeFactorsBranch[j] > 0 && tempAllFactor != n; j++) {
+            for(j = k; primeFactorsBranch[j] > 0; j++) {
                 if(i!=j) {
                     tempAllFactor = tempAllFactor * primeFactorsBranch[j];
                     if(tempAllFactor!=n) {
@@ -130,14 +133,6 @@ int main() {
     }
 
     printIfFriends(sumOfFactorsArray);
-
-    printf("sumOfFactorsArray[14595] es igual a %d\n", sumOfFactorsArray[14595]);
-    printf("sumOfFactorsArray[12285] es igual a %d\n", sumOfFactorsArray[12285]);
-
-    printf("Factores de 12285: ");
-    for(int i = 0; i< allFactorsArrayLength[12285]; i++) {
-        printf("%d\n", allFactorsArray[12285][i]);
-    }
 
 	gettimeofday(&ts, NULL);
 	stop_ts = ts.tv_sec * 1000000 + ts.tv_usec; // Tiempo final
