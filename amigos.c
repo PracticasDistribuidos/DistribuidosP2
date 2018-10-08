@@ -4,11 +4,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <stdbool.h>
   
 #define LIMIT 20000
+#define LIMITPRIME 20000
 
+int numberOfPrimes[LIMIT];
 int primeFactorsArray[LIMIT][200];
-int allFactorsArray[LIMIT][200];
+bool allFactorsArray[LIMIT][LIMITPRIME];
 int allFactorsArrayLength[LIMIT];
 int sumOfFactorsArray[LIMIT];
 
@@ -32,42 +35,35 @@ int removeDuplicates(int n, int *allFactorsBranch) {
     return newLength;
 }
 
-int getSumOfArray(int* allFactorsBranch, int size) {
+int getSumOfArray(bool* allFactorsBranch, int size) {
     int i;
     int total = 0;
     for(i = 0; i < size; i++) {
-        total += allFactorsBranch[i]; 
+	if(allFactorsBranch[i])
+        	total += i; 
     }
-
     return total;
 }
 
-void allFactors(int n, int* primeFactorsBranch, int* allFactorsBranch) {
-    int currentAllFactor = 0;
-    int tempAllFactor = 1;
-    int i, j, k, z = 0;
-
-    
-    for(i = 0; primeFactorsBranch[i] > 0 && primeFactorsBranch[i] != n; i++) {
-            allFactorsBranch[currentAllFactor] = primeFactorsBranch[i];
-            currentAllFactor++;
-    }
-
-    int totalPrimes = currentAllFactor;
-
-    for(i = 1; primeFactorsBranch[i] > 0; i++) {
-        for(k = 1; k < 100; k++) {
-            tempAllFactor = primeFactorsBranch[i];
-            for(j = k; primeFactorsBranch[j] > 0; j++) {
-                if(i!=j) {
-                    tempAllFactor = tempAllFactor * primeFactorsBranch[j];
-                    if(tempAllFactor!=n) {
-                        allFactorsBranch[currentAllFactor] = tempAllFactor;
-                        currentAllFactor++;
-                    }
-                }
+void allFactors(int n, int* primeFactorsBranch, bool* allFactorsBranch) {
+    for(int i=0; i<LIMITPRIME; i++)
+	allFactorsBranch[i]=false;
+    int numberOfPrimeF = numberOfPrimes[n];
+    int factorIndex=0;
+    int pow2 = (1<<numberOfPrimeF)-1;
+    int factor=1;
+    for(int i=1; i<=pow2;i++)
+    {
+        factor=1;
+        for(int j=1;j<numberOfPrimeF; j++)
+        {
+            //si el j-esimo bit de i esta prendido, multiplicar el j-esimo elemento por factor
+            if(i&(1<<j)){
+                factor*=primeFactorsBranch[j];
             }
         }
+        allFactorsBranch[factor] = true;
+        factorIndex++;
     }
 }
 
@@ -82,7 +78,7 @@ void printIfFriends(int* sumoOfFactors) {
     }
 }
 
-void primeFactors(int n, int* primeFactorsBranch) {
+int primeFactors(int n, int* primeFactorsBranch) {
     int currentPrimeFactor = 1;
     primeFactorsBranch[0] = 1;
     while (n%2 == 0) {
@@ -103,8 +99,21 @@ void primeFactors(int n, int* primeFactorsBranch) {
         primeFactorsBranch[currentPrimeFactor] = n;
         currentPrimeFactor+= 1;
     }
+    return currentPrimeFactor;
 }
   
+void info(int n)
+{
+    printf("\n---------------------------------------------------\n");
+    printf("printing all factors of %d, it has %d prime factors: ",n , numberOfPrimes[n]);
+    for(int i = 1; i< n; i++) {
+        if(allFactorsArray[n][i])
+	    printf("%d ", i);
+    }
+    printf("\n The sum of the factos of n is %d",  sumOfFactorsArray[n]);
+    printf("\n---------------------------------------------------\n");
+}
+
 int main() {
     long long start_ts;
 	long long stop_ts;
@@ -117,7 +126,7 @@ int main() {
 
 
     for(int i = 1; i< LIMIT; i++) {
-        primeFactors(i,primeFactorsArray[i]);
+	numberOfPrimes[i] = primeFactors(i,primeFactorsArray[i]);
     }
 
     for(int i = 1; i < LIMIT; i++) {
@@ -125,12 +134,11 @@ int main() {
     }
 
     for(int i = 1; i< LIMIT; i++) {
-        allFactorsArrayLength[i] = removeDuplicates(i,allFactorsArray[i]);
+        sumOfFactorsArray[i] = getSumOfArray(allFactorsArray[i], i);
     }
 
-    for(int i = 1; i< LIMIT; i++) {
-        sumOfFactorsArray[i] = getSumOfArray(allFactorsArray[i],allFactorsArrayLength[i]);
-    }
+ //   info(17296);
+ //   info(18416);
 
     printIfFriends(sumOfFactorsArray);
 
