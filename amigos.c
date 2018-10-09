@@ -1,10 +1,12 @@
 // Program to print all prime factors 
+//By Carlos Gonzalez & Gabriel Campollo
 #include <stdio.h> 
 #include <math.h> 
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <stdbool.h>
+#include <mpi.h>
   
 #define LIMIT 20000
 #define LIMITPRIME 20000
@@ -114,39 +116,55 @@ void info(int n)
     printf("\n---------------------------------------------------\n");
 }
 
-int main() {
+
+
+int main(int argc, char *argv[]) {
     long long start_ts;
 	long long stop_ts;
 	float elapsed_time;
 	long lElapsedTime;
 	struct timeval ts;
-	
+
 	gettimeofday(&ts, NULL);
 	start_ts = ts.tv_sec * 1000000 + ts.tv_usec; // Tiempo inicial
+	int rank, size;
 
+	MPI_Status status;
 
-    for(int i = 1; i< LIMIT; i++) {
-	numberOfPrimes[i] = primeFactors(i,primeFactorsArray[i]);
-    }
+	MPI_Init (&argc, &argv); /* starts MPI */
+	MPI_Comm_rank (MPI_COMM_WORLD, &rank); /* get current process id */
+	MPI_Comm_size (MPI_COMM_WORLD, &size); /* get number of processes */
+	
+	MPI_Barrier(MPI_COMM_WORLD);
 
-    for(int i = 1; i < LIMIT; i++) {
-        allFactors(i,primeFactorsArray[i],allFactorsArray[i]);
-    }
+	if(rank==0)
+	{
+	    
+	}
+	else
+	{
+	    for(int i = rank; i< LIMIT; i+=(size-1)){
+		numberOfPrimes[i] = primeFactors(i,primeFactorsArray[i]);
+	        allFactors(i,primeFactorsArray[i],allFactorsArray[i]);
+		sumOfFactorsArray[i] = getSumOfArray(allFactorsArray[i], i);
+	    }
 
-    for(int i = 1; i< LIMIT; i++) {
-        sumOfFactorsArray[i] = getSumOfArray(allFactorsArray[i], i);
-    }
+            printIfFriends(sumOfFactorsArray);
+	}
 
- //   info(17296);
- //   info(18416);
+	MPI_Barrier(MPI_COMM_WORLD);
 
-    printIfFriends(sumOfFactorsArray);
+	MPI_Finalize();	
+	
+	if(rank==0)
+	{	    
+	    gettimeofday(&ts, NULL);
+	    stop_ts = ts.tv_sec * 1000000 + ts.tv_usec; // Tiempo final
 
-	gettimeofday(&ts, NULL);
-	stop_ts = ts.tv_sec * 1000000 + ts.tv_usec; // Tiempo final
+	    elapsed_time = (float) (stop_ts - start_ts)/1000000.0;
+	    printf("Encontré los numeros amigos que existen hasta %d en %1.2f segundos\n",LIMIT,elapsed_time);
 
-	elapsed_time = (float) (stop_ts - start_ts)/1000000.0;
- 
-    printf("Encontré los numeros amigos que existen hasta %d en %1.2f segundos\n",LIMIT,elapsed_time);
+	}
+
     return 0;
 }
